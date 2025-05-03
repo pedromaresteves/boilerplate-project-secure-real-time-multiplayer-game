@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const expect = require('chai');
 const socket = require('socket.io');
 const cors = require('cors');
+const Col = require("./public/Collectible.mjs")
 
 const fccTestingRoutes = require('./routes/fcctesting.js');
 const runner = require('./test-runner.js');
@@ -51,6 +52,57 @@ const server = app.listen(portNum, () => {
       }
     }, 1500);
   }
+});
+
+let buiscuitPosition;
+buiscuitPosition = Col.findPosition();
+
+const io = socket(server);
+let liveUsers = [];
+io.on('connection', (socket) => {
+
+  socket.emit("client_id", socket.id);
+
+  liveUsers.push({id: socket.id});
+
+  io.emit("buiscuit_position", buiscuitPosition)
+
+  socket.on("created_player", player => {
+    liveUsers.forEach(user => {
+      if(user.id === player.id){
+        user.position = player.position;
+      }
+    });
+    io.emit("new_players", liveUsers);
+  });
+
+  socket.on("player_moved", player =>{
+    liveUsers.forEach(user => {
+      if(user.id === player.id){
+        user.position = player.position;
+      }
+    });
+    io.emit("all_players", liveUsers);
+  });
+
+  socket.on("update_score", playerWhoScored => {
+    liveUsers.forEach(user => {
+      if(user.id === playerWhoScored.id){
+        user.points = playerWhoScored.points;
+      }
+    });
+    buiscuitPosition = Col.findPosition();
+    io.emit("buiscuit_position", buiscuitPosition);
+    io.emit("all_players", liveUsers);
+  });
+
+  socket.on('disconnect', () => {
+    liveUsers = liveUsers.filter(item => {
+      return item.id !== socket.id;
+    });
+    io.emit('player_left', socket.id)
+  });
+
 });
 
 module.exports = app; // For testing
