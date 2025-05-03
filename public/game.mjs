@@ -20,6 +20,7 @@ const clearCanvas = ()=>{
 };
 
 const createFoes = (players)=>{
+    foes = [];
     players.forEach(player => {
         if(player.id !== clientId){
                 foes.push(new Player({x: player.position.x, y:player.position.y, id:player.id, imageHref: foeSprite}));
@@ -80,11 +81,9 @@ socket.on("client_id", (id)=>{
     clientId = id;
     mainCharacter.id = clientId
     socket.emit("created_player", mainCharacter);
-    console.log(mainCharacter)
 });
 
 socket.on("buiscuit_position", biscuitPosition=>{
-    console.log(biscuitPosition, "BP")
     createBiscuit(biscuitPosition);
 });
 

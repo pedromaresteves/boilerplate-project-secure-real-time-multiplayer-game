@@ -25,9 +25,7 @@ class Player {
   collision(item) {
     const xAxisCollision = this.position.x + this.size.w >= item.position.x && this.position.x <= (item.position.x + item.size.w);
     const yAxisCollision = (this.position.y + this.size.h) >= item.position.y && this.position.y <= (item.position.y + item.size.h);
-    console.log("X:", xAxisCollision, "Y:",yAxisCollision)
     if(xAxisCollision && yAxisCollision ){
-      console.log("POINT")
       this.points += 1;
       return true;
     }
